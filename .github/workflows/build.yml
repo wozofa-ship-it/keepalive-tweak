@@ -1,0 +1,26 @@
+name: Build KeepAlive dylib
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build dylib
+        run: |
+          set -e
+          clang -arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+            -mios-version-min=14.0 -fobjc-arc -dynamiclib \
+            -framework UIKit -framework Foundation -framework AVFoundation \
+            -o CZFKeepAlive.dylib Tweak/CZFKeepAlive.m
+          file CZFKeepAlive.dylib
+          ls -la CZFKeepAlive.dylib
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CZFKeepAlive.dylib
+          path: CZFKeepAlive.dylib
